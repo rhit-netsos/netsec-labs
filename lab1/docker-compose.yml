@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  hostA:
+    image: netsos/rhit-netsec:latest
+    container_name: hostA
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.4
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+  hostB:
+    image: netsos/rhit-netsec:latest
+    container_name: hostB
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.5
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+  attacker:
+    image: netsos/rhit-netsec:latest
+    container_name: attacker
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.13
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+networks:
+  local-net:
+    name: local-net
+    # internal: true
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
