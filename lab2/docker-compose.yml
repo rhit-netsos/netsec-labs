@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+  # Add your services here, default image is netsos/rhit-netsec:latest
+  #
+  # Make sure to sync volumes using the following.
+  # volumes:
+  #   - ./volumes:/volumes
+  #
+  # Run the config script.
+  # command:
+  #   bash -c "bash /volmes/check_config.sh && tail -f /dev/null"
+  #
+  hostA:
+    image: netsos/rhit-netsec:latest
+    container_name: hostA
+    hostname: hostA
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    # edit:change sysctls direcly from here, saves time over doing it later
+    sysctls:
+      - net.ipv4.ip_forward=0
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.4
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+  attacker:
+    image: netsos/rhit-netsec:latest
+    container_name: attacker
+    hostname: attacker
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    # edit:change sysctls direcly from here, saves time over doing it later
+    sysctls:
+      - net.ipv4.ip_forward=0
+      - net.ipv4.icmp_echo_ignore_all=1
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.10
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+  hostB:
+    image: netsos/rhit-netsec:latest
+    container_name: hostB
+    hostname: hostB
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    # privileged: true
+    # edit:change sysctls direcly from here, saves time over doing it later
+    sysctls:
+      - net.ipv4.ip_forward=0
+    volumes:
+      - ./volumes:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.5
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+networks:
+  local-net:
+    name: local-net
+    # enable this if need the network isolated without Internet access.
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
