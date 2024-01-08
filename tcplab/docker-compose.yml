@@ -27,10 +27,10 @@ services:
     command:
       bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
 
-  attacker:
+  server:
     image: netsos/rhit-netsec:tcplab
-    container_name: attacker
-    hostname: attacker
+    container_name: server
+    hostname: server
     tty: true
     # stdin_open: true
     cap_add:
