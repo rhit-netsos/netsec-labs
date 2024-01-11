@@ -86,8 +86,8 @@ fi
 PATTERN="s/\(client\)/${STUDENT}-\1/g"
 sed -i $PATTERN docker-compose.yml
 
-# patch attacker
-PATTERN="s/server/${STUDENT}-attacker/g"
+# patch server 
+PATTERN="s/server/${STUDENT}-server/g"
 sed -i $PATTERN docker-compose.yml
 
 # patch network
