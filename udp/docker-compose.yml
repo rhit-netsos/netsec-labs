@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  # Add your services here, default image is netsos/rhit-netsec:latest
+  #
+  # Make sure to sync volumes using the following.
+  # volumes:
+  #   - ./volumes:/volumes
+  #
+  # Run the config script.
+  # command:
+  #   bash -c "bash /volmes/check_config.sh && tail -f /dev/null"
+  #
+
+  client:
+    image: netsos/rhit-netsec:tcplab
+    container_name: client
+    hostname: client
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.4
+    command:
+      bash -c "bash /volumes/check_config.sh && /volumes/secret_service.bin || tail -f /dev/null"
+
+  server:
+    image: netsos/rhit-netsec:tcplab
+    container_name: server
+    hostname: server
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.5
+    command:
+      # bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+      bash -c "bash /volumes/check_config.sh && /volumes/secret_service.bin || tail -f /dev/null"
+
+  attacker:
+    image: netsos/rhit-netsec:tcplab
+    container_name: attacker
+    hostname: attacker
+    tty: true
+    # stdin_open: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      local-net:
+        ipv4_address: 10.10.0.24
+    command:
+      bash -c "bash /volumes/check_config.sh && tail -f /dev/null"
+
+networks:
+  local-net:
+    name: local-net
+    # enable this if need the network isolated without Internet access.
+    # internal: true
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+
