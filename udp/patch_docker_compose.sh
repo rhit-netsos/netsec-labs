@@ -90,6 +90,10 @@ sed -i $PATTERN docker-compose.yml
 PATTERN="s/server/${STUDENT}-server/g"
 sed -i $PATTERN docker-compose.yml
 
+# patch attacker
+PATTERN="s/attacker/${STUDENT}-attacker/g"
+sed -i $PATTERN docker-compose.yml
+
 # patch network
 PATTERN="s/local-net/${STUDENT}-local-net/g"
 sed -i $PATTERN docker-compose.yml
@@ -100,7 +104,7 @@ sed -i $PATTERN docker-compose.yml
 
 # generate connection scripts
 print_log "Generating connection scripts..."
-HOSTS="client server"
+HOSTS="client server attacker"
 for hhost in ${HOSTS}
 do
   cat > connect_$hhost.sh << EOF
