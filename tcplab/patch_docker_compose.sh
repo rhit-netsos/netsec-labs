@@ -95,7 +95,7 @@ PATTERN="s/local-net/${STUDENT}-local-net/g"
 sed -i $PATTERN docker-compose.yml
 
 # patch network subnet
-PATTERN="s/10.10.0/${SUBNET}/g"
+PATTERN="s/10.10/${SUBNET}/g"
 sed -i $PATTERN docker-compose.yml
 
 # generate connection scripts
