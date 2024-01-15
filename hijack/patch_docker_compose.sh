@@ -104,7 +104,7 @@ sed -i $PATTERN docker-compose.yml
 
 # generate connection scripts
 print_log "Generating connection scripts..."
-HOSTS="client server"
+HOSTS="client server attacker"
 for hhost in ${HOSTS}
 do
   cat > connect_$hhost.sh << EOF
