@@ -95,7 +95,7 @@ PATTERN="s/attacker/${STUDENT}-attacker/g"
 sed -i $PATTERN docker-compose.yml
 
 # patch network
-PATTERN="s/local-net/${STUDENT}-local-net/g"
+PATTERN="s/\(subnet[0-9]\)/${STUDENT}-\1/g"
 sed -i $PATTERN docker-compose.yml
 
 # patch network subnet
