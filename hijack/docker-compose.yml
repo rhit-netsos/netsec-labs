@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  # Add your services here, default image is netsos/rhit-netsec:latest
+  #
+  # Make sure to sync volumes using the following.
+  # volumes:
+  #   - ./volumes:/volumes
+  #
+  # Run the config script.
+  # command:
+  #   bash -c "bash /volmes/check_config.sh && tail -f /dev/null"
+  #
+  client:
+    image: netsos/rhit-netsec:tcplab
+    container_name: client
+    hostname: client
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet1:
+        ipv4_address: 10.10.0.4
+    command: bash -c "
+                bash /volumes/check_config.sh &&
+                ip route change default dev eth0 via 10.10.0.10 &&
+                tail -f /dev/null
+             "
+
+  server:
+    image: netsos/rhit-netsec:tcplab
+    container_name: server
+    hostname: server
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet2:
+        ipv4_address: 10.10.1.15
+    command: bash -c "
+                bash /volumes/check_config.sh &&
+                bash /volumes/setup_telnetd.sh &&
+                ip route change default dev eth0 via 10.10.1.10 &&
+                tail -f /dev/null
+             "
+
+  attacker:
+    image: netsos/rhit-netsec:tcplab
+    container_name: attacker
+    hostname: attacker
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    sysctls:
+      - net.ipv4.ip_forward=0
+    networks:
+      subnet1:
+        ipv4_address: 10.10.0.10
+      subnet2:
+        ipv4_address: 10.10.1.10
+    command:
+      bash -c 'bash /volumes/check_config.sh && tail -f /dev/null'
+
+networks:
+  subnet1:
+    name: subnet1
+    # enable this if need the network isolated without Internet access.
+    # internal: true
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+
+  subnet2:
+    name: subnet2
+    # internal: true
+    ipam:
+      config:
+        - subnet: 10.10.1.0/24
+
