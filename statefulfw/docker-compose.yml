@@ -1,0 +1,134 @@
+version: '3'
+
+services:
+  # Add your services here, default image is netsos/rhit-netsec:latest
+  #
+  # Make sure to sync volumes using the following.
+  # volumes:
+  #   - ./volumes:/volumes
+  #
+  # Run the config script.
+  # command:
+  #   bash -c "bash /volmes/check_config.sh && tail -f /dev/null"
+  #
+
+  # Subnet 1: Contains two clients
+  #
+  client1:
+    image: netsos/rhit-netsec:fw
+    container_name: client1
+    hostname: client1
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet1:
+        ipv4_address: 10.10.0.4
+    extra_hosts:
+      server: "10.10.1.4"
+    command: bash -c "
+              bash /volumes/check_config.sh &&
+              ip route add 10.10.1.0/24 dev eth0 via 10.10.0.10 &&
+              tail -f /dev/null
+            "
+  client2:
+    image: netsos/rhit-netsec:fw
+    container_name: client2
+    hostname: client2
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet1:
+        ipv4_address: 10.10.0.5
+    extra_hosts:
+      server: "10.10.1.4"
+    command: bash -c "
+              bash /volumes/check_config.sh &&
+              ip route add 10.10.1.0/24 dev eth0 via 10.10.0.10 &&
+              tail -f /dev/null
+            "
+  #
+  # Firewall sits at the boundary
+  #
+
+  firewall:
+    image: netsos/rhit-netsec:fw
+    container_name: firewall
+    hostname: firewall
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    sysctls:
+      - net.ipv4.ip_forward=1
+    networks:
+      subnet1:
+        ipv4_address: 10.10.0.10
+      subnet2:
+        ipv4_address: 10.10.1.10
+    command: bash -c "
+                bash /volumes/check_config.sh &&
+                tail -f /dev/null
+            "
+
+  # http server running telnet and sshd as well
+  server:
+    image: netsos/rhit-netsec:fw
+    container_name: server
+    hostname: server
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet2:
+        ipv4_address: 10.10.1.4
+    # extra_hosts:
+    #   client: "10.10.0.4"
+    command: bash -c "
+                bash /volumes/check_config.sh &&
+                bash /volumes/setup_telnetd.sh &&
+                ip route add 10.10.0.0/24 dev eth0 via 10.10.1.10 &&
+                tail -f /dev/null
+             "
+
+  # local workstation
+  workstation:
+    image: netsos/rhit-netsec:fw
+    container_name: workstation
+    hostname: workstation
+    tty: true
+    cap_add:
+      - ALL
+    volumes:
+      - ./volumes/:/volumes
+    networks:
+      subnet2:
+        ipv4_address: 10.10.1.5
+    # extra_hosts:
+    #   client: "10.10.0.4"
+    command: bash -c "
+                bash /volumes/check_config.sh &&
+                ip route add 10.10.0.0/24 dev eth0 via 10.10.1.10 &&
+                tail -f /dev/null
+             "
+
+networks:
+  subnet1:
+    name: subnet1
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+  subnet2:
+    name: subnet2
+    ipam:
+      config:
+        - subnet: 10.10.1.0/24
+
