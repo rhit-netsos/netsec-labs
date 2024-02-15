@@ -56,7 +56,7 @@ services:
         ipv4_address: 10.10.1.10
     command: bash -c "
                 bash /volumes/check_config.sh &&
-                bash /volumes/setup_firewall.sh &&
+                bash /volumes/setup_fw.sh &&
                 tail -f /dev/null
             "
 
