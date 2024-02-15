@@ -66,8 +66,8 @@ services:
     container_name: server
     hostname: server
     tty: true
-    ports:
-      - 8080:80
+    # ports:
+    #   - 8080:80
     cap_add:
       - ALL
     volumes:
