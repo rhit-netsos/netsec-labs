@@ -1,0 +1,17 @@
+#!/usr/sbin/nft -f
+
+# create empty table first so we can remove it, makes it non-atomic, but who cares?
+table ip blk_server
+delete table ip blk_server
+
+# definitions
+define server_ip = 10.10.1.4
+
+# that's our main table
+table blk_server {
+  chain forward {
+    type filter hook forward priority 0; policy accept;
+
+    ip daddr $server_ip drop
+  }
+}
